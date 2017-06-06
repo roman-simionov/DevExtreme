@@ -21,16 +21,18 @@
 
 <body>
 
-    Min1: <input type="number" id="min1" value="-9"/>
-    Max1: <input type="number" id="max1" value="321"/>
-    gsf1: <input type="number" id="gsf1" value="20"/>
+    Min1: <input type="number" id="min1" value="-53"/>
+    Max1: <input type="number" id="max1" value="52"/>
+    gsf1: <input type="number" id="gsf1" value="100"/>
+    s_v1: <input type="number" id="sv1"/>
     <br/>
 
     <br/>
 
-    Min2: <input type="number" id="min2" value="-42"/>
-    Max2: <input type="number" id="max2" value="32"/>
+    Min2: <input type="number" id="min2" value="-100"/>
+    Max2: <input type="number" id="max2" value="120"/>
     gsf2: <input type="number" id="gsf2" value="100" />
+    s_v2: <input type="number" id="sv2"/>
 
     <div id="chart" style="width: 1800px; height: 700px;"></div>
 
@@ -152,7 +154,9 @@
                     max: newMax,
                     tickInterval: syncOptions.result.tickInterval,
                     extraAddition: Math.max(tickCount(newMin, newMax, syncOptions.result.tickInterval, minMargin, maxMargin) - mainOptions.result.ticks.length, 0) + add.mainRange,
-                    gsf: syncOptions.gsf
+                    gsf: syncOptions.gsf,
+                    result: syncOptions.result,
+                    synchronizedValue: syncOptions.synchronizedValue
                 };
 
         }
@@ -161,7 +165,17 @@
              return {
                     min:options.min,
                     max: options.max + intrvalCounts*options.result.tickInterval,
-                    gsf: options.gsf
+                    gsf: options.gsf,
+                    result: options.result
+             };
+        }
+
+        function addIntervalToMinRange(options, intrvalCounts){
+             return {
+                    min:options.min - intrvalCounts*options.result.tickInterval,
+                    max: options.max,
+                    gsf: options.gsf,
+                    result: options.result
              };
         }
 
@@ -238,14 +252,16 @@
                 max: max1,
                 result: result1,
                 generator: generator1,
-                gsf: o1.gsf
+                gsf: o1.gsf,
+                synchronizedValue: o1.synchronizedValue
             }: {
                 min: min2,
                 max: max2,
                 result: result2,
 
                 generator: generator2,
-                gsf: o2.gsf
+                gsf: o2.gsf,
+                synchronizedValue: o2.synchronizedValue
             },
 
             mainOption = result1.ticks.length>result2.ticks.length?{
@@ -253,23 +269,41 @@
                 max: max1,
                 result: result1,
                 generator: generator1,
-                gsf: o1.gsf
+                gsf: o1.gsf,
+                synchronizedValue: o1.synchronizedValue
             }: {
                 min: min2,
                 max: max2,
                 result: result2,
                 generator: generator2,
-                gsf: o2.gsf
+                gsf: o2.gsf,
+                synchronizedValue: o2.synchronizedValue
             };
 
             var syncRange = syncRanges(mainOption, syncOption);
 
-            if(syncRange.extraAddition){
+              if(syncRange.extraAddition){
                 mainOption = addIntervalToRange(mainOption, syncRange.extraAddition);
-            }
+              }
+
+              if($.isNumeric(syncRange.synchronizedValue) && $.isNumeric(mainOption.synchronizedValue)){
+                    var syncDiff = Math.floor((syncRange.synchronizedValue - syncRange.min)/syncRange.result.tickInterval);
+                    var mainDiff = Math.floor((mainOption.synchronizedValue - mainOption.min)/mainOption.result.tickInterval),
+
+                    diff = mainDiff-syncDiff;
+
+                    if(diff>0){
+                        syncRange = addIntervalToMinRange(syncRange, diff);
+                        mainOption = addIntervalToRange(mainOption, diff);
+                    } else {
+                        syncRange = addIntervalToRange(syncRange, -diff);
+                       mainOption = addIntervalToMinRange(mainOption, -diff);
+                    }
+
+              }
 
             drawTicks(renderer, tickGenerator, axisType, o1.min, o1.max,   800,    50,     150,    false,       o1.allowDecimals,      o1.tickInterval,    0, o1.gsf);
-            drawTicks(renderer, tickGenerator, axisType, o1.min, o2.max, 800,    50,     250,    false,         o2.allowDecimals,      o2.tickInterval,    0, o2.gsf);
+            drawTicks(renderer, tickGenerator, axisType, o2.min, o2.max, 800,    50,     250,    false,         o2.allowDecimals,      o2.tickInterval,    0, o2.gsf);
 
             drawTicks(renderer, tickGenerator, axisType, syncRange.min, syncRange.max,   800,    50,     150,    false,         allowDecimals,      syncRange.tickInterval,    200, syncRange.gsf);
             drawTicks(renderer, tickGenerator, axisType, mainOption.min, mainOption.max, 800,    50,     250,    false,         allowDecimals,      undefined,    200, mainOption.gsf);
@@ -287,12 +321,14 @@
                 min: parseFloat($("#min1").val()),
                 max: parseFloat($("#max1").val()),
                 gsf: parseFloat($("#gsf1").val()),
-                allowDecimals: true
+                allowDecimals: true,
+                synchronizedValue: parseFloat($("#sv1").val())
             }, {
                 min: parseFloat($("#min2").val()),
                 max: parseFloat($("#max2").val()),
                 gsf: parseFloat($("#gsf2").val()),
-                allowDecimals: true
+                allowDecimals: true,
+                synchronizedValue: parseFloat($("#sv2").val())
             }, renderer, tickGenerator)
 
         }

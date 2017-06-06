@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script src="https://unpkg.com/systemjs@0.19.31/dist/system.js"></script>
+    <script>
+        SystemJS.config({
+            map: {
+                'jquery': 'https://unpkg.com/jquery@3.2.1/dist/jquery.min.js',
+                'devextreme': '../js'
+            },
+            packages: {
+                'devextreme': {
+                    defaultExtension: 'js'
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    Min1: <input type="number" id="min1" value="10"/>
+    Max1: <input type="number" id="max1" value="300"/>
+    <br/>
+
+    <br/>
+
+    Min2: <input type="number" id="min2" value="0"/>
+    Max2: <input type="number" id="max2" value="1"/>
+
+    <div id="chart" style="width: 1800px; height: 700px;"></div>
+
+    <div id="chart1" style="width: 1800px; height: 700px;"></div>
+
+    <script>
+        Promise.all([
+            System.import('devextreme/viz/axes/tick_generator.js'),
+            System.import('devextreme/viz/core/renderers/renderer.js')
+        ]).then(function(m) {
+            run(m[0].tickGenerator, m[1].Renderer)
+
+            run1(m[0].tickGenerator, m[1].Renderer)
+
+            $("input").change(function(){
+                run(m[0].tickGenerator, m[1].Renderer);
+            })
+        });
+
+        function drawTicks(renderer, tickGenerator, type, min, max, width, offsetW, offsetH, endOnTicks, allowDecimals, tickInterval, dy) {
+            var generator = tickGenerator({
+                dataType: "numeric",
+                axisType: type,
+                gridSpacingFactor: 50,
+                minorGridSpacingFactor: 15,
+                allowDecimals: allowDecimals,
+                endOnTicks: endOnTicks,
+                calculateMinors: false,
+                logBase: 10
+            }),
+            group = renderer.g().move(0, dy).append(renderer.root),
+            result = generator({ min: min, max: max }, width, tickInterval, undefined),
+            y = offsetH + 25;
+
+
+            if(endOnTicks) {
+                min = result.ticks[0];
+                max = result.ticks[result.ticks.length -1];
+            }
+
+            var translator = val => Math.round((width / (max - min)) * (val - min) + offsetW);
+
+            if(type === "logarithmic"){
+                translator = val => (width / (Math.log(max / min) / Math.log(10))) * (Math.log(val / min) / Math.log(10)) + offsetW;
+            }
+
+            renderer.rect(offsetW, offsetH, width, 50).attr({ "stroke-width": 1, stroke: "grey" }).append(group);
+            renderer.path([offsetW, y, offsetW + width, y], "line").attr({ "stroke-width": 1, stroke: "grey" }).sharp().append(group);
+
+            result.ticks.forEach(tick => {
+                var x = translator(tick);
+                renderer.path([x, y - 50, x, y + 50], "line").attr({ "stroke-width": 1, stroke: "black" }).sharp().append(group);
+                var text = renderer.text(tick, x, y + 20).attr({ align: "center" }).css({ "fill": "black", "font-size": 12}).append(group);
+            });
+
+            result.minorTicks.forEach(tick => {
+                var x = translator(tick);
+                renderer.path([x, y - 5, x, y + 5], "line").attr({ "stroke-width": 1, stroke: "grey" }).sharp().append(renderer.root);
+            });
+        }
+
+        function tickCount(min, max, tickInterval, minMargin, maxMargin){
+            var intervalCount = (max-min) / tickInterval,
+                tickCount =   Math.floor((max-min) / tickInterval)+1;
+
+                if(minMargin+maxMargin>=1){
+                    tickCount -= 1;
+                }
+
+            return tickCount;
+        }
+
+        function syncRanges(mainOptions, syncOptions){
+            var needAdd = (mainOptions.result.ticks.length - syncOptions.result.ticks.length),
+                minMargin = (mainOptions.result.ticks[0]-mainOptions.min)/mainOptions.result.tickInterval,
+                maxMargin = (mainOptions.max -mainOptions.result.ticks[mainOptions.result.ticks.length-1])/mainOptions.result.tickInterval,
+                currentMinMargin = (syncOptions.result.ticks[0]-syncOptions.min)/syncOptions.result.tickInterval,
+                currentMaxMargin = (syncOptions.max -syncOptions.result.ticks[syncOptions.result.ticks.length-1])/syncOptions.result.tickInterval,
+
+                minAddM = currentMinMargin <= minMargin ? minMargin - currentMinMargin:1 + minMargin - currentMinMargin,
+                maxAddM = currentMaxMargin <= maxMargin ? maxMargin - currentMaxMargin: 1 + maxMargin - currentMaxMargin,
+
+                addValue = Math.max(0, Math.floor(needAdd - minAddM-maxAddM)),
+
+                newMin = syncOptions.min  -(minAddM) * syncOptions.result.tickInterval,
+                newMax = syncOptions.max + (maxAddM + addValue) * syncOptions.result.tickInterval,
+
+                addedTickCount = tickCount(newMin, newMax, syncOptions.result.tickInterval, minMargin, maxMargin) - syncOptions.result.ticks.length,
+
+                extraAddition = addedTickCount-needAdd;
+
+                if(extraAddition){
+                    newMax-=extraAddition*syncOptions.result.tickInterval;
+                }
+
+                return {
+                    min: newMin,
+                    max: newMax,
+                    tickInterval: syncOptions.result.tickInterval,
+                    extraAddition: Math.max(tickCount(newMin, newMax, syncOptions.result.tickInterval, minMargin, maxMargin) - mainOptions.result.ticks.length, 0)
+                };
+
+        }
+
+        function addIntervalToRange(options, intrvalCounts){
+             return {
+                    min:options.min,
+                    max: options.max + intrvalCounts*options.result.tickInterval
+             };
+        }
+
+        function drawSyncTicks(o1, o2, renderer, tickGenerator){
+            var min1 = o1.min,
+                max1 = o1.max,
+                tickInterval1 = undefined,
+
+                min2 = o2.min,
+                max2 = o2.max,
+                tickInterval2 = undefined,
+                allowDecimals = true,
+
+                width = 800,
+                axisType = "continuous",
+
+                generator = tickGenerator({
+                dataType: "numeric",
+                axisType: axisType,
+                gridSpacingFactor: 50,
+                minorGridSpacingFactor: 15,
+                allowDecimals: allowDecimals,
+                endOnTicks: false,
+                calculateMinors: false
+            }),
+
+            result1 = generator({ min: min1, max: max1 }, width, tickInterval1, undefined),
+            result2 = generator({ min: min2, max: max2 }, width, tickInterval2, undefined),
+
+            factor1 = width/result1.ticks.length,
+            factor2 = width/result2.ticks.length,
+
+            syncOption = factor1>=factor2?{
+                min: min1,
+                max: max1,
+                result: result1,
+                factor: factor1
+            }: {
+                min: min2,
+                max: max2,
+                result: result2,
+                factor: factor2
+            },
+
+            mainOption = factor1<factor2?{
+                min: min1,
+                max: max1,
+                result: result1,
+                factor: factor1
+            }: {
+                min: min2,
+                max: max2,
+                result: result2,
+                factor: factor2
+            };
+
+            var syncRange = syncRanges(mainOption, syncOption);
+
+            if(syncRange.extraAddition){
+                mainOption = addIntervalToRange(mainOption, syncRange.extraAddition);
+            }
+
+            drawTicks(renderer, tickGenerator, axisType, syncRange.min, syncRange.max,   800,    50,     150,    false,         allowDecimals,      syncRange.tickInterval,    200);
+            drawTicks(renderer, tickGenerator, axisType, mainOption.min, mainOption.max, 800,    50,     250,    false,         allowDecimals,      undefined,    200);
+
+        }
+
+        function run(tickGenerator, Renderer){
+
+            $("svg").remove();
+
+            var renderer = new Renderer({ container: $("#chart").get(0) });
+            renderer.resize(1800, 700);
+
+            drawTicks(renderer, tickGenerator, "continuous",    parseFloat($("#min1").val()), parseFloat($("#max1").val()),   800,    50,     150,    false,         true,      undefined,    0);
+            drawTicks(renderer, tickGenerator, "continuous",    parseFloat($("#min2").val()), parseFloat($("#max2").val()),   800,    50,     250,    false,         true,      undefined,    0);
+
+
+            drawSyncTicks({
+                min: parseFloat($("#min1").val()),
+                max: parseFloat($("#max1").val())
+            }, {
+                min: parseFloat($("#min2").val()),
+                max: parseFloat($("#max2").val())
+            }, renderer, tickGenerator)
+
+        }
+
+         function run1(tickGenerator, Renderer){
+
+
+
+        }
+    </script>
+</body>
+
+</html>

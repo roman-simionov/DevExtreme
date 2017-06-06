@@ -21,14 +21,16 @@
 
 <body>
 
-    Min1: <input type="number" id="min1" value="10"/>
-    Max1: <input type="number" id="max1" value="300"/>
+    Min1: <input type="number" id="min1" value="-9"/>
+    Max1: <input type="number" id="max1" value="321"/>
+    gsf1: <input type="number" id="gsf1" value="20"/>
     <br/>
 
     <br/>
 
-    Min2: <input type="number" id="min2" value="0"/>
-    Max2: <input type="number" id="max2" value="1"/>
+    Min2: <input type="number" id="min2" value="-42"/>
+    Max2: <input type="number" id="max2" value="32"/>
+    gsf2: <input type="number" id="gsf2" value="100" />
 
     <div id="chart" style="width: 1800px; height: 700px;"></div>
 
@@ -48,11 +50,11 @@
             })
         });
 
-        function drawTicks(renderer, tickGenerator, type, min, max, width, offsetW, offsetH, endOnTicks, allowDecimals, tickInterval, dy) {
+        function drawTicks(renderer, tickGenerator, type, min, max, width, offsetW, offsetH, endOnTicks, allowDecimals, tickInterval, dy, gsf) {
             var generator = tickGenerator({
                 dataType: "numeric",
                 axisType: type,
-                gridSpacingFactor: 50,
+                gridSpacingFactor: gsf,
                 minorGridSpacingFactor: 15,
                 allowDecimals: allowDecimals,
                 endOnTicks: endOnTicks,
@@ -101,10 +103,31 @@
             return tickCount;
         }
 
+        function getAddTickCount(mainOptions, syncOptions){
+            var add = (mainOptions.result.ticks.length - syncOptions.result.ticks.length);
+            var add2 = Math.ceil((mainOptions.result.ticks.length + 1)/2 - syncOptions.result.ticks.length);
+            var mainRangeAdd = 0,
+                n =1;
+
+            if(add2 === Math.floor(add2) && add2>=0 && add2<add){
+                add = add2;
+                mainRangeAdd = 2*(syncOptions.result.ticks.length + add)-1 - mainOptions.result.ticks.length;
+
+                n = ((mainOptions.result.ticks.length+mainRangeAdd+1)/(syncOptions.result.ticks.length + add))/2+1;
+            }
+
+            return {
+                syncRange: add,
+                mainRange: mainRangeAdd,
+                n: n
+            };
+        }
+
         function syncRanges(mainOptions, syncOptions){
-            var needAdd = (mainOptions.result.ticks.length - syncOptions.result.ticks.length),
-                minMargin = (mainOptions.result.ticks[0]-mainOptions.min)/mainOptions.result.tickInterval,
-                maxMargin = (mainOptions.max -mainOptions.result.ticks[mainOptions.result.ticks.length-1])/mainOptions.result.tickInterval,
+            var add = getAddTickCount(mainOptions, syncOptions),
+                needAdd = add.syncRange,
+                minMargin = (mainOptions.result.ticks[0]-mainOptions.min)/mainOptions.result.tickInterval/ add.n,
+                maxMargin = (mainOptions.max -mainOptions.result.ticks[mainOptions.result.ticks.length-1])/mainOptions.result.tickInterval/add.n,
                 currentMinMargin = (syncOptions.result.ticks[0]-syncOptions.min)/syncOptions.result.tickInterval,
                 currentMaxMargin = (syncOptions.max -syncOptions.result.ticks[syncOptions.result.ticks.length-1])/syncOptions.result.tickInterval,
 
@@ -128,7 +151,8 @@
                     min: newMin,
                     max: newMax,
                     tickInterval: syncOptions.result.tickInterval,
-                    extraAddition: Math.max(tickCount(newMin, newMax, syncOptions.result.tickInterval, minMargin, maxMargin) - mainOptions.result.ticks.length, 0)
+                    extraAddition: Math.max(tickCount(newMin, newMax, syncOptions.result.tickInterval, minMargin, maxMargin) - mainOptions.result.ticks.length, 0) + add.mainRange,
+                    gsf: syncOptions.gsf
                 };
 
         }
@@ -136,7 +160,8 @@
         function addIntervalToRange(options, intrvalCounts){
              return {
                     min:options.min,
-                    max: options.max + intrvalCounts*options.result.tickInterval
+                    max: options.max + intrvalCounts*options.result.tickInterval,
+                    gsf: options.gsf
              };
         }
 
@@ -153,44 +178,88 @@
                 width = 800,
                 axisType = "continuous",
 
-                generator = tickGenerator({
+                generator1 = tickGenerator({
                 dataType: "numeric",
                 axisType: axisType,
-                gridSpacingFactor: 50,
+                gridSpacingFactor: o1.gsf,
                 minorGridSpacingFactor: 15,
                 allowDecimals: allowDecimals,
                 endOnTicks: false,
                 calculateMinors: false
             }),
 
-            result1 = generator({ min: min1, max: max1 }, width, tickInterval1, undefined),
-            result2 = generator({ min: min2, max: max2 }, width, tickInterval2, undefined),
+            generator2 = tickGenerator({
+                dataType: "numeric",
+                axisType: axisType,
+                gridSpacingFactor: o2.gsf,
+                minorGridSpacingFactor: 15,
+                allowDecimals: allowDecimals,
+                endOnTicks: false,
+                calculateMinors: false
+            })
 
-            factor1 = width/result1.ticks.length,
-            factor2 = width/result2.ticks.length,
+            result1 = generator1({ min: min1, max: max1 }, width, tickInterval1, undefined),
+            result2 = generator2({ min: min2, max: max2 }, width, tickInterval2, undefined),
 
-            syncOption = factor1>=factor2?{
+            factor1 = width / result1.ticks.length / o1.gsf,
+            factor2 = width / result2.ticks.length / o2.gsf,
+
+            // syncOption = factor1>=factor2?{
+            //     min: min1,
+            //     max: max1,
+            //     result: result1,
+            //     generator: generator1,
+            //     gsf: o1.gsf
+            // }: {
+            //     min: min2,
+            //     max: max2,
+            //     result: result2,
+
+            //     generator: generator2,
+            //     gsf: o2.gsf
+            // },
+
+            // mainOption = factor1<factor2?{
+            //     min: min1,
+            //     max: max1,
+            //     result: result1,
+            //     generator: generator1,
+            //     gsf: o1.gsf
+            // }: {
+            //     min: min2,
+            //     max: max2,
+            //     result: result2,
+            //     generator: generator2,
+            //     gsf: o2.gsf
+            // };
+
+               syncOption = result2.ticks.length>=result1.ticks.length?{
                 min: min1,
                 max: max1,
                 result: result1,
-                factor: factor1
+                generator: generator1,
+                gsf: o1.gsf
             }: {
                 min: min2,
                 max: max2,
                 result: result2,
-                factor: factor2
+
+                generator: generator2,
+                gsf: o2.gsf
             },
 
-            mainOption = factor1<factor2?{
+            mainOption = result1.ticks.length>result2.ticks.length?{
                 min: min1,
                 max: max1,
                 result: result1,
-                factor: factor1
+                generator: generator1,
+                gsf: o1.gsf
             }: {
                 min: min2,
                 max: max2,
                 result: result2,
-                factor: factor2
+                generator: generator2,
+                gsf: o2.gsf
             };
 
             var syncRange = syncRanges(mainOption, syncOption);
@@ -199,9 +268,11 @@
                 mainOption = addIntervalToRange(mainOption, syncRange.extraAddition);
             }
 
-            drawTicks(renderer, tickGenerator, axisType, syncRange.min, syncRange.max,   800,    50,     150,    false,         allowDecimals,      syncRange.tickInterval,    200);
-            drawTicks(renderer, tickGenerator, axisType, mainOption.min, mainOption.max, 800,    50,     250,    false,         allowDecimals,      undefined,    200);
+            drawTicks(renderer, tickGenerator, axisType, o1.min, o1.max,   800,    50,     150,    false,       o1.allowDecimals,      o1.tickInterval,    0, o1.gsf);
+            drawTicks(renderer, tickGenerator, axisType, o1.min, o2.max, 800,    50,     250,    false,         o2.allowDecimals,      o2.tickInterval,    0, o2.gsf);
 
+            drawTicks(renderer, tickGenerator, axisType, syncRange.min, syncRange.max,   800,    50,     150,    false,         allowDecimals,      syncRange.tickInterval,    200, syncRange.gsf);
+            drawTicks(renderer, tickGenerator, axisType, mainOption.min, mainOption.max, 800,    50,     250,    false,         allowDecimals,      undefined,    200, mainOption.gsf);
         }
 
         function run(tickGenerator, Renderer){
@@ -211,16 +282,17 @@
             var renderer = new Renderer({ container: $("#chart").get(0) });
             renderer.resize(1800, 700);
 
-            drawTicks(renderer, tickGenerator, "continuous",    parseFloat($("#min1").val()), parseFloat($("#max1").val()),   800,    50,     150,    false,         true,      undefined,    0);
-            drawTicks(renderer, tickGenerator, "continuous",    parseFloat($("#min2").val()), parseFloat($("#max2").val()),   800,    50,     250,    false,         true,      undefined,    0);
-
 
             drawSyncTicks({
                 min: parseFloat($("#min1").val()),
-                max: parseFloat($("#max1").val())
+                max: parseFloat($("#max1").val()),
+                gsf: parseFloat($("#gsf1").val()),
+                allowDecimals: true
             }, {
                 min: parseFloat($("#min2").val()),
-                max: parseFloat($("#max2").val())
+                max: parseFloat($("#max2").val()),
+                gsf: parseFloat($("#gsf2").val()),
+                allowDecimals: true
             }, renderer, tickGenerator)
 
         }

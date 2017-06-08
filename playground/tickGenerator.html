@@ -52,7 +52,7 @@
             })
         });
 
-        function drawTicks(renderer, tickGenerator, type, min, max, width, offsetW, offsetH, endOnTicks, allowDecimals, tickInterval, dy, gsf) {
+        function drawTicks(renderer, tickGenerator, type, min, max, width, offsetW, offsetH, endOnTicks, allowDecimals, tickInterval, dy, gsf, sv) {
             var generator = tickGenerator({
                 dataType: "numeric",
                 axisType: type,
@@ -61,7 +61,8 @@
                 allowDecimals: allowDecimals,
                 endOnTicks: endOnTicks,
                 calculateMinors: false,
-                logBase: 10
+                logBase: 10,
+                synchronizedValue: sv
             }),
             group = renderer.g().move(0, dy).append(renderer.root),
             result = generator({ min: min, max: max }, width, tickInterval, undefined),
@@ -166,7 +167,8 @@
                     min:options.min,
                     max: options.max + intrvalCounts*options.result.tickInterval,
                     gsf: options.gsf,
-                    result: options.result
+                    result: options.result,
+                    synchronizedValue: options.synchronizedValue
              };
         }
 
@@ -175,7 +177,8 @@
                     min:options.min - intrvalCounts*options.result.tickInterval,
                     max: options.max,
                     gsf: options.gsf,
-                    result: options.result
+                    result: options.result,
+                    synchronizedValue: options.synchronizedValue
              };
         }
 
@@ -199,7 +202,8 @@
                 minorGridSpacingFactor: 15,
                 allowDecimals: allowDecimals,
                 endOnTicks: false,
-                calculateMinors: false
+                calculateMinors: false,
+                synchronizedValue: o1.synchronizedValue
             }),
 
             generator2 = tickGenerator({
@@ -209,7 +213,8 @@
                 minorGridSpacingFactor: 15,
                 allowDecimals: allowDecimals,
                 endOnTicks: false,
-                calculateMinors: false
+                calculateMinors: false,
+                synchronizedValue: o2.synchronizedValue
             })
 
             result1 = generator1({ min: min1, max: max1 }, width, tickInterval1, undefined),
@@ -302,11 +307,11 @@
 
               }
 
-            drawTicks(renderer, tickGenerator, axisType, o1.min, o1.max,   800,    50,     150,    false,       o1.allowDecimals,      o1.tickInterval,    0, o1.gsf);
-            drawTicks(renderer, tickGenerator, axisType, o2.min, o2.max, 800,    50,     250,    false,         o2.allowDecimals,      o2.tickInterval,    0, o2.gsf);
+            drawTicks(renderer, tickGenerator, axisType, o1.min, o1.max,   800,    50,     150,    false,       o1.allowDecimals,      o1.tickInterval,    0, o1.gsf, o1.synchronizedValue);
+            drawTicks(renderer, tickGenerator, axisType, o2.min, o2.max, 800,    50,     250,    false,         o2.allowDecimals,      o2.tickInterval,    0, o2.gsf, o2.synchronizedValue);
 
-            drawTicks(renderer, tickGenerator, axisType, syncRange.min, syncRange.max,   800,    50,     150,    false,         allowDecimals,      syncRange.tickInterval,    200, syncRange.gsf);
-            drawTicks(renderer, tickGenerator, axisType, mainOption.min, mainOption.max, 800,    50,     250,    false,         allowDecimals,      undefined,    200, mainOption.gsf);
+            drawTicks(renderer, tickGenerator, axisType, syncRange.min, syncRange.max,   800,    50,     150,    false,         allowDecimals,      syncRange.tickInterval,    200, syncRange.gsf, syncRange.synchronizedValue);
+            drawTicks(renderer, tickGenerator, axisType, mainOption.min, mainOption.max, 800,    50,     250,    false,         allowDecimals,      undefined,    200, mainOption.gsf, mainOption.synchronizedValue);
         }
 
         function run(tickGenerator, Renderer){
@@ -322,13 +327,13 @@
                 max: parseFloat($("#max1").val()),
                 gsf: parseFloat($("#gsf1").val()),
                 allowDecimals: true,
-                synchronizedValue: parseFloat($("#sv1").val())
+                synchronizedValue: $("#sv1").val() && parseFloat($("#sv1").val())||undefined
             }, {
                 min: parseFloat($("#min2").val()),
                 max: parseFloat($("#max2").val()),
                 gsf: parseFloat($("#gsf2").val()),
                 allowDecimals: true,
-                synchronizedValue: parseFloat($("#sv2").val())
+                synchronizedValue: $("#sv2").val() && parseFloat($("#sv2").val())||undefined
             }, renderer, tickGenerator)
 
         }

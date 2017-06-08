@@ -65,10 +65,19 @@ function raiseTo(base) {
     };
 }
 
-function correctValueByInterval(post, round, getValue) {
-    return function(value, interval, min) {
+function correctValueByInterval(post, round, getValue, synchronizedValue) {
+    var correctValueFunction = function(value, interval, min) {
         return adjustValueByPrecision(post(round(getValue(value) / interval) * interval), interval, min);
     };
+
+    if(synchronizedValue !== undefined) {
+        return function(value, interval, min) {
+            var v = correctValueFunction(value, interval, min);
+            return v + synchronizedValue - Math.floor(synchronizedValue / interval) * interval;
+        };
+    }
+
+    return correctValueFunction;
 }
 
 function getBusinessDelta(data) {
@@ -381,8 +390,8 @@ function generator(options, getBusinessDelta, calculateTickInterval, calculateMi
 }
 
 function numericGenerator(options) {
-    var floor = correctValueByInterval(getValue, mathFloor, getValue),
-        ceil = correctValueByInterval(getValue, mathCeil, getValue);
+    var floor = correctValueByInterval(getValue, mathFloor, getValue, options.synchronizedValue),
+        ceil = correctValueByInterval(getValue, mathCeil, getValue, options.synchronizedValue);
 
     return generator(
         options,

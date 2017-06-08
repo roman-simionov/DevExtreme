@@ -120,6 +120,27 @@ QUnit.test("0-2, screenDelta 500 - tickInterval 1", function(assert) {
     assert.equal(result.tickInterval, 1);
 });
 
+QUnit.test("Synchronized value", function(assert) {
+    var synchronizedValue = 13,
+        generator = tickGenerator({
+            dataType: "numeric",
+            axisType: "continuous",
+            gridSpacingFactor: 50,
+            allowDecimals: false,
+            endOnTicks: undefined,
+            logBase: undefined,
+            synchronizedValue: synchronizedValue
+        }),
+        result;
+
+    result = generator({ min: -100, max: 100 }, 200, undefined, undefined);
+
+    assert.equal(result.tickInterval, 50);
+    assert.equal(result.ticks.filter(function(tick) {
+        return tick === synchronizedValue;
+    }).length, 1);
+});
+
 QUnit.module("Numeric. Calculate tickInterval and ticks. allowDecimals true", {});
 
 QUnit.test("0-10, screenDelta 200 - tickInterval 2.5", function(assert) {

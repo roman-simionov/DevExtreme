@@ -432,11 +432,13 @@ module.exports = DOMComponent.inherit({
     _render: noop,
 
     _optionChanged: function(arg) {
-        var that = this;
+        var that = this,
+            changeName = that._optionChangesMap[arg.fullName] || that._optionChangesMap[arg.name];
+
         if(that._eventTrigger.change(arg.name)) {
             that._change(["EVENTS"]);
-        } else if(that._optionChangesMap[arg.name]) {
-            that._change([that._optionChangesMap[arg.name]]);
+        } else if(changeName) {
+            that._change([changeName]);
         } else {
             that.callBase.apply(that, arguments);
         }

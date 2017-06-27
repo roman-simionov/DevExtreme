@@ -60,7 +60,9 @@ QUnit.module("dxChart Translators", $.extend({}, commons.environment, {
         commons.environment.beforeEach.call(this);
 
         this.createTranslator2D = sinon.stub(translator2DModule, "Translator2D", function() {
-            return new Translator();
+            var translator = new Translator();
+            translator.stub("getBusinessRange").returns({});
+            return translator;
         });
     },
     afterEach: function() {

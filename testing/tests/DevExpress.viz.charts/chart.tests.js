@@ -55,7 +55,9 @@ var environment = {
         this.container = $("<div>");
         var chart = this.container
             .appendTo($("#qunit-fixture"))
-            .dxChart(this.options)
+            .dxChart($.extend({
+                argumentAxis: {}
+            }, this.options))
             .dxChart("instance");
 
         this.layoutManagers = this.LayoutManager.returnValues;

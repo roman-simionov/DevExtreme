@@ -1356,6 +1356,76 @@ QUnit.test("zoom end event, not rendered chart", function(assert) {
     assert.equal(zoomEnd.getCall(0).args[0].rangeEnd, 80, 'rangeEnd');
 });
 
+QUnit.test("Set argumentAxis.viewport options on initialization", function(assert) {
+    seriesMockData.series.push(new MockSeries({
+        range: {
+            val: {
+                min: 0,
+                max: 10
+            },
+            arg: {
+                min: 0,
+                max: 100
+            }
+        }
+    }));
+
+    var chart = this.createChart({
+        series: { type: "line" }
+    });
+
+    assert.deepEqual(chart.option("argumentAxis.viewport"), [0, 100]);
+});
+
+QUnit.test("Set argumentAxis.viewport option on zooming", function(assert) {
+    seriesMockData.series.push(new MockSeries({
+        range: {
+            val: {
+                min: 0,
+                max: 10
+            },
+            arg: {
+                min: 0,
+                max: 100
+            }
+        }
+    }));
+
+    var chart = this.createChart({
+        series: { type: "line" }
+    });
+
+    chart.zoomArgument(30, 50);
+
+    assert.deepEqual(chart.option("argumentAxis.viewport"), [30, 50]);
+});
+
+QUnit.test("chart zoomed on argumentAxis.viewport options changing", function(assert) {
+    seriesMockData.series.push(new MockSeries({
+        range: {
+            val: {
+                min: 0,
+                max: 10
+            },
+            arg: {
+                min: 0,
+                max: 100
+            }
+        }
+    }));
+
+    var chart = this.createChart({
+        series: { type: "line" }
+    });
+
+    chart.option("argumentAxis.viewport", [30, 50]);
+
+    assert.deepEqual(chart.getVisibleArgumentBounds(), {
+        minVisible: 30,
+        maxVisible: 50
+    });
+});
+
 QUnit.module("MultiAxis Synchronization", commons.environment);
 
 QUnit.test("dxChart with two Series on one pane and different value axis", function(assert) {

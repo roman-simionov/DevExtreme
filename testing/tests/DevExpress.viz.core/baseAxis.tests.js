@@ -504,6 +504,82 @@ QUnit.test("Check min/max after zoom and reset zoom", function(assert) {
     assert.strictEqual(rangeData.maxVisible, 100, "Max visible should be correct");
 });
 
+QUnit.test("check viewport", function(assert) {
+    this.updateOptions({
+        viewport: [10, 30]
+    });
+
+    var rangeData = this.axis.getRangeData();
+
+    assert.strictEqual(rangeData.min, 0, "Min should be correct");
+    assert.strictEqual(rangeData.max, 100, "Max should be correct");
+
+    assert.strictEqual(rangeData.minVisible, 10, "Min visible should be correct");
+    assert.strictEqual(rangeData.maxVisible, 30, "Max visible should be correct");
+});
+
+QUnit.test("check viewport with incorrect values", function(assert) {
+    this.updateOptions({
+        viewport: [undefined, null]
+    });
+
+    var rangeData = this.axis.getRangeData();
+
+    assert.strictEqual(rangeData.minVisible, 0, "Min visible should be correct");
+    assert.strictEqual(rangeData.maxVisible, 100, "Max visible should be correct");
+});
+
+QUnit.test("check viewport with negative values. Logathmic axis", function(assert) {
+    this.updateOptions({
+        viewport: [-50, -40],
+        type: "logarithmic",
+        logarithmBase: 10
+    });
+
+    var rangeData = this.axis.getRangeData();
+
+    assert.strictEqual(rangeData.minVisible, undefined, "Min visible should be correct");
+    assert.strictEqual(rangeData.maxVisible, 100, "Max visible should be correct");
+});
+
+QUnit.test("vieport can not out from bounds", function(assert) {
+    this.updateOptions({
+        viewport: [-10, 160]
+    });
+
+    var rangeData = this.axis.getRangeData();
+    assert.strictEqual(rangeData.minVisible, 0, "Min visible should be correct");
+    assert.strictEqual(rangeData.maxVisible, 100, "Max visible should be correct");
+});
+
+QUnit.test("vieport if bounds are not set", function(assert) {
+    this.updateOptions({
+        viewport: [-10, 160]
+    });
+
+    this.axis._getMinMax.returns({ min: undefined, max: undefined });
+    var rangeData = this.axis.getRangeData();
+
+    assert.strictEqual(rangeData.minVisible, -10, "Min visible should be correct");
+    assert.strictEqual(rangeData.maxVisible, 160, "Max visible should be correct");
+});
+
+QUnit.test("Check viewport. Discrete axis", function(assert) {
+    this.updateOptions({
+        type: "discrete",
+        viewport: [200, 100]
+    });
+
+    var rangeData = this.axis.getRangeData();
+
+    assert.strictEqual(rangeData.min, undefined, "Min should be correct");
+    assert.strictEqual(rangeData.max, undefined, "Max should be correct");
+
+    assert.strictEqual(rangeData.minVisible, 200, "Min visible should be correct");
+    assert.strictEqual(rangeData.maxVisible, 100, "Max visible should be correct");
+});
+
+
 
 QUnit.module("Labels Settings", {
     beforeEach: function() {

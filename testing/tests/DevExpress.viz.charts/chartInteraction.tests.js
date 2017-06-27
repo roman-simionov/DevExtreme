@@ -34,6 +34,7 @@ QUnit.module("Tooltip behavior on target scroll", {
                 tick: { visible: false },
                 visible: false
             },
+            argumentAxis: {},
             series: [{ point: { visible: false }, label: { visible: false } }],
             legend: { visible: false },
             tooltip: { enabled: true },
@@ -131,6 +132,7 @@ QUnit.test("There should be no crash when chart updating is began after option i
     var chart = $("#chart").dxChart({
         dataSource: [{ arg: 1, val: 1 }],
         series: {},
+        argumentAxis: {},
         onIncidentOccurred: function(e) {
             chart.beginUpdate();
             chart.option("dataSource", []);
@@ -155,7 +157,8 @@ QUnit.test("Three stacked spline area series (one of which has null point) shoul
             arg: 2, v1: 2, v2: null, v3: 1
         }],
         commonSeriesSettings: { type: "stackedSplineArea" },
-        series: [{ valueField: "v1" }, { valueField: "v2" }, { valueField: "v3" }]
+        series: [{ valueField: "v1" }, { valueField: "v2" }, { valueField: "v3" }],
+        argumentAxis: {}
     });
 
     assert.ok(true, "there should be no exceptions");
@@ -170,7 +173,8 @@ QUnit.test("number of rendering on updating dataSource", function(assert) {
         chart = $("#chart").dxChart({
             dataSource: data,
             series: {},
-            onDrawn: drawn
+            onDrawn: drawn,
+            argumentAxis: {}
         }).dxChart("instance");
 
     drawn.reset();
@@ -205,7 +209,8 @@ QUnit.module("series API", {
         };
     },
     createChart: function(options) {
-        this.chart = $("#chart").dxChart(options || this.options).dxChart("instance");
+        options = $.extend({ argumentAxis: {} }, options || this.options);
+        this.chart = $("#chart").dxChart(options).dxChart("instance");
 
         return this.chart;
     }

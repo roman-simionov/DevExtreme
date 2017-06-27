@@ -1602,6 +1602,13 @@ var dxChart = {
             text: undefined
         },
         /**
+        * @name dxchartoptions_argumentaxis_viewport
+        * @publicName viewport
+        * @type array
+        * @notUsedInTheme
+        */
+        viewport: [undefined, undefined],
+        /**
         * @name dxchartoptions_argumentaxis_label
         * @publicName label
         * @type object

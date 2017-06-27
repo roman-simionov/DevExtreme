@@ -106,6 +106,9 @@ function getTrackerStub(isPie) {
 exports.getTrackerStub = getTrackerStub;
 
 function createChartInstance(options, chartContainer) {
+    options = $.extend({
+        argumentAxis: {}
+    }, options);
     return chartContainer.dxChart(options).dxChart("instance");
 }
 exports.createChartInstance = createChartInstance;

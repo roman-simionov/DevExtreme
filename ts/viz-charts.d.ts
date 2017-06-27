@@ -1850,7 +1850,11 @@ declare module DevExpress.viz.charts {
         hoverMode?: string;
     }
 
-    export interface ChartArgumentAxis extends ChartAxis, ArgumentAxis { }
+    export interface ChartArgumentAxis extends ChartAxis, ArgumentAxis {
+        /** @docid dxchartoptions_argumentaxis_viewport */
+        viewport?: Array<any>;
+    }
+
     export interface PolarArgumentAxis extends PolarAxis, ArgumentAxis {
         /** @docid dxpolarchartoptions_argumentaxis_startangle */
         startAngle?: number;

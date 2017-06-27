@@ -114,6 +114,7 @@ exports.plugin = {
         // "exports" is used for testing purposes.
         that._loadingIndicator = new exports.LoadingIndicator({ eventTrigger: that._eventTrigger, renderer: that._renderer, notify: notify });
         that._scheduleLoadingIndicatorHiding();
+        this._skipLoadingIndicatorHiding = 0;
         function notify(state) {
             // This flag is used to suppress redundant `_optionChanged` notifications caused by the mechanism that synchronizes the `loadingIndicator.show` option and the loading indicator visibility
             that._skipLoadingIndicatorOptions = true;
@@ -142,7 +143,13 @@ exports.plugin = {
             this._loadingIndicator.hide();
         },
         _onBeginUpdate: function() {
-            this._scheduleLoadingIndicatorHiding();
+            if(!this._skipLoadingIndicatorHiding) {
+                this._scheduleLoadingIndicatorHiding();
+            }
+            this._skipLoadingIndicatorHiding--;
+            if(this._skipLoadingIndicatorHiding < 0) {
+                this._skipLoadingIndicatorHiding = 0;
+            }
         }
     },
     customize: function(constructor) {

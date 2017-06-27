@@ -130,7 +130,8 @@ var environment = {
                 animation: {
                     enabled: true,
                     maxPointCountSupported: 300
-                }
+                },
+                argumentAxis: {}
             }, options);
             $.each(options || {}, function(k, v) {
                 if(k === "valueAxis" || k === "argumentAxis" || k === "series") {

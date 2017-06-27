@@ -1117,6 +1117,7 @@ var dxChart = AdvancedChart.inherit({
             animate: false
         });
         bounds = that.getVisibleArgumentBounds();
+        that.updateArgumentViewPort();
         that._eventTrigger("zoomEnd", { rangeStart: bounds.minVisible, rangeEnd: bounds.maxVisible });
     },
 
@@ -1124,6 +1125,34 @@ var dxChart = AdvancedChart.inherit({
         var that = this;
         that._zoomMinArg = that._zoomMaxArg = undefined;  //T190927
         that._argumentAxes[0] && that._argumentAxes[0].resetZoom();
+    },
+
+    _optionChangesMap: {
+        "argumentAxis.viewport": "ARGUMENT_VIEWPORT"
+    },
+
+    _customChangesOrder: ["ARGUMENT_VIEWPORT"],
+
+    _renderCompleteHandler: function() {
+        this.updateArgumentViewPort();
+        this.callBase();
+    },
+
+    _change_ARGUMENT_VIEWPORT: function() {
+        var viewport = this.option("argumentAxis.viewport") || [],
+            bounds = this.getVisibleArgumentBounds();
+
+        if(viewport[0] !== bounds.minVisible || viewport[1] !== bounds.maxVisible) {
+            this.zoomArgument(viewport[0], viewport[1]);
+        }
+    },
+
+    updateArgumentViewPort: function() {
+        var bounds = this.getVisibleArgumentBounds();
+
+        this._skipLoadingIndicatorHiding++;
+
+        this.option("argumentAxis.viewport", [bounds.minVisible, bounds.maxVisible]);
     },
 
     //T218011 for dashboards

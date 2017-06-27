@@ -51,7 +51,9 @@ var chartContainerCounter = 1,
         createChartCore: function(options, chartType) {
             var chart;
             var mergedOptions = $.extend(true,
-                {},
+                {
+                    argumentAxis: {}
+                },
                 options);
 
             chart = new chartType(this.$container, mergedOptions);
@@ -60,6 +62,9 @@ var chartContainerCounter = 1,
     };
 
 function createChartInstance(options, chartContainer) {
+    options = $.extend({
+        argumentAxis: {}
+    }, options);
     return chartContainer.dxChart(options).dxChart("instance");
 }
 
@@ -211,7 +216,7 @@ QUnit.test("Problem with two axis and range", function(assert) {
 
 QUnit.test("dxChart reinitialization - series - dataSource", function(assert) {
     //arrange
-    var chart = this.$container.dxChart({
+    var chart = this.createChart({
         dataSource: [{ arg: "January", val1: 24, val2: 0, val3: 15 },
             { arg: "February", val1: 0, val2: 34, val3: 40 },
         ],
@@ -302,7 +307,7 @@ QUnit.test("dxChart reinitialization - dataSource - correct axes min max", funct
 QUnit.test("dxChart with vertical axis with title", function(assert) {
     //arrange, act
     this.$container.width("300px");
-    this.$container.dxChart({
+    this.createChart({
         valueAxis: {
             title: "some title",
             position: "left"
@@ -315,7 +320,7 @@ QUnit.test("dxChart with vertical axis with title", function(assert) {
 QUnit.test("dxChart with horizontal axis with title", function(assert) {
     //arrange, act
     this.$container.width("300px");
-    this.$container.dxChart({
+    this.createChart({
         valueAxis: {
             title: "some title",
             position: "bottom"
@@ -371,7 +376,7 @@ QUnit.module("B237847. Groups and classes", moduleSetup);
 
 QUnit.test("dxChart groups and classes", function(assert) {
     var $container = this.$container;
-    $container.dxChart({
+    this.createChart({
         title: "test",
         commonSeriesSettings: {
             label: {
@@ -403,7 +408,7 @@ QUnit.test("dxChart groups and classes", function(assert) {
 
 QUnit.test("dxChart groups and classes after redraw", function(assert) {
     var $container = this.$container;
-    $container.dxChart({
+    this.createChart({
         title: "test",
         commonSeriesSettings: {
             label: {

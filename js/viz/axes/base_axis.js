@@ -92,6 +92,13 @@ function updateLabels(ticks, step, func) {
     });
 }
 
+function checkLogarithmicValue(value, axisType) {
+    if(axisType === constants.logarithmic) {
+        value = value <= 0 ? undefined : value;
+    }
+    return value;
+}
+
 Axis = exports.Axis = function(renderSettings) {
     var that = this;
 
@@ -1164,17 +1171,18 @@ Axis.prototype = {
             minMax = that._getMinMax(),
             min = minMax.min,
             max = minMax.max,
+            viewport = that._options.viewport || [],
             zoomArgs = that._zoomArgs || {},
             type = options.type,
             rangeMin,
             rangeMax,
             rangeMinVisible,
-            rangeMaxVisible;
+            rangeMaxVisible,
+            minViewportValue = viewport[0],
+            maxViewportValue = viewport[1];
 
-        if(type === constants.logarithmic) {
-            min = min <= 0 ? undefined : min;
-            max = max <= 0 ? undefined : max;
-        }
+        min = checkLogarithmicValue(min, type);
+        max = checkLogarithmicValue(max, type);
 
         if(type !== constants.discrete) {
             rangeMin = min;
@@ -1188,6 +1196,29 @@ Axis.prototype = {
         } else {
             rangeMinVisible = _isDefined(zoomArgs.min) ? zoomArgs.min : min;
             rangeMaxVisible = _isDefined(zoomArgs.max) ? zoomArgs.max : max;
+        }
+
+        if(that._options.viewport && !that._zoomArgs) {
+            minViewportValue = checkLogarithmicValue(minViewportValue, type);
+            maxViewportValue = checkLogarithmicValue(maxViewportValue, type);
+            minViewportValue = _isDefined(minViewportValue) ? minViewportValue : rangeMinVisible;
+            maxViewportValue = _isDefined(maxViewportValue) ? maxViewportValue : rangeMaxVisible;
+
+            if(type !== constants.discrete) {
+                if(_isDefined(rangeMin)) {
+                    rangeMinVisible = rangeMinVisible > minViewportValue ? rangeMinVisible : minViewportValue;
+                } else {
+                    rangeMinVisible = minViewportValue;
+                }
+                if(_isDefined(rangeMax)) {
+                    rangeMaxVisible = rangeMaxVisible > maxViewportValue ? maxViewportValue : rangeMaxVisible;
+                } else {
+                    rangeMaxVisible = maxViewportValue;
+                }
+            } else {
+                rangeMinVisible = viewport[0];
+                rangeMaxVisible = viewport[1];
+            }
         }
 
         return {

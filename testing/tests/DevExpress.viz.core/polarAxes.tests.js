@@ -834,77 +834,77 @@ QUnit.test("measure labels without labels, with axis, width of axis is thick", f
     assert.deepEqual(axis.measureLabels(this.canvas), { width: 6, height: 6, x: 0, y: 0 });
 });
 
-QUnit.test("get range data, set period without originValue", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ period: 20, argumentType: "numeric" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set period without originValue", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ period: 20, argumentType: "numeric" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, 0);
-    assert.equal(range.max, 20);
-});
+//     assert.equal(range.min, 0);
+//     assert.equal(range.max, 20);
+// });
 
-QUnit.test("get range data, set period with originValue, min & max", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ period: 20, originValue: 20, min: 50, max: 100, argumentType: "numeric" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set period with originValue, min & max", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ period: 20, originValue: 20, min: 50, max: 100, argumentType: "numeric" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, 20);
-    assert.equal(range.max, 40);
-});
+//     assert.equal(range.min, 20);
+//     assert.equal(range.max, 40);
+// });
 
-QUnit.test("get range data, set originValue, min & max", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ originValue: 10, min: 20, max: 40, argumentType: "numeric" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set originValue, min & max", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ originValue: 10, min: 20, max: 40, argumentType: "numeric" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, 10);
-    assert.equal(range.max, undefined);
-});
+//     assert.equal(range.min, 10);
+//     assert.equal(range.max, undefined);
+// });
 
-QUnit.test("get range data, set string originValue", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ originValue: "string", argumentType: "numeric" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set string originValue", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ originValue: "string", argumentType: "numeric" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, undefined);
-    assert.equal(range.max, undefined);
-});
+//     assert.equal(range.min, undefined);
+//     assert.equal(range.max, undefined);
+// });
 
-QUnit.test("get range data, set string period", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ period: "str", argumentType: "numeric" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set string period", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ period: "str", argumentType: "numeric" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, undefined);
-    assert.equal(range.max, undefined);
-});
+//     assert.equal(range.min, undefined);
+//     assert.equal(range.max, undefined);
+// });
 
-QUnit.test("get range data, set zero period", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ period: 0, argumentType: "numeric" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set zero period", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ period: 0, argumentType: "numeric" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, undefined);
-    assert.equal(range.max, undefined);
-});
+//     assert.equal(range.min, undefined);
+//     assert.equal(range.max, undefined);
+// });
 
-QUnit.test("get range data, set period, argumentType is string", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ period: 20, argumentType: "string" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set period, argumentType is string", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ period: 20, argumentType: "string" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, undefined);
-    assert.equal(range.max, undefined);
-});
+//     assert.equal(range.min, undefined);
+//     assert.equal(range.max, undefined);
+// });
 
-QUnit.test("get range data, set period, argumentType is datetime", function(assert) {
-    this.options.min = this.options.max = undefined;
-    var axis = this.createDrawnAxis({ period: 20, argumentType: "datetime" }),
-        range = axis.getRangeData();
+// QUnit.test("get range data, set period, argumentType is datetime", function(assert) {
+//     this.options.min = this.options.max = undefined;
+//     var axis = this.createDrawnAxis({ period: 20, argumentType: "datetime" }),
+//         range = axis.getRangeData();
 
-    assert.equal(range.min, undefined);
-    assert.equal(range.max, undefined);
-});
+//     assert.equal(range.min, undefined);
+//     assert.equal(range.max, undefined);
+// });
 
 QUnit.test("getSpiderTicks. without spiderWeb", function(assert) {
     var axis = this.createDrawnAxis();

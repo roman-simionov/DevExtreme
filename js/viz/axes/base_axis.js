@@ -106,6 +106,15 @@ function createBoundaryTick(axis, renderer, isFirst) {
     );
 }
 
+function adjustRange(range) {
+    range = range || [];
+    if(range[0] > range[1]) {
+        return [range[1], range[0]];
+    }
+
+    return range;
+}
+
 function callAction(ticks, action, actionArgument) {
     ticks.forEach(function(tick) { tick[action](actionArgument); });
 }
@@ -1033,7 +1042,7 @@ Axis.prototype = {
 
     applyViewportAndBounds: function(range) {
         const options = this._options;
-        const wholeRange = options.wholeRange || [];
+        const wholeRange = adjustRange(options.wholeRange);
         const viewportMin = this._viewport[0];
         const viewportMax = this._viewport[1];
 

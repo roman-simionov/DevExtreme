@@ -572,6 +572,23 @@ QUnit.test("Validate wholeRange, option is not set", function(assert) {
     assert.deepEqual(this.axis.getOptions().wholeRange, []);
 });
 
+QUnit.test("Validate, wholeRange is wrong", function(assert) {
+    this.updateOptions({ argumentType: "datetime", wholeRange: ["w", "a"] });
+
+    this.axis.validate();
+
+    assert.ok(this.incidentOccurred.calledTwice);
+
+    var firstIdError = this.incidentOccurred.firstCall.args[0],
+        secondIdError = this.incidentOccurred.secondCall.args[0];
+
+    assert.equal(firstIdError, "E2106");
+    assert.equal(dxErrors[firstIdError], "Invalid visible range");
+    assert.equal(secondIdError, "E2106");
+    assert.equal(dxErrors[secondIdError], "Invalid visible range");
+
+    assert.deepEqual(this.axis.getOptions().wholeRange, [undefined, undefined]);
+});
 
 QUnit.test("Validate wholeRange, option is set", function(assert) {
     this.updateOptions({ argumentType: "datetime", wholeRange: [10, 20] });
@@ -2486,6 +2503,38 @@ QUnit.test("viewport can't go out from whole range", function(assert) {
         max: 10,
         minVisible: 2,
         maxVisible: 5
+    });
+
+    const businessRange = this.translator.updateBusinessRange.lastCall.args[0];
+    assert.equal(businessRange.min, -100);
+    assert.equal(businessRange.max, 100);
+    assert.equal(businessRange.minVisible, -100);
+    assert.equal(businessRange.maxVisible, 100);
+});
+
+QUnit.test("Whole range lenght greater then data range", function(assert) {
+    this.updateOptions({ wholeRange: [100, -100] });
+    this.axis.validate();
+
+    this.axis.setBusinessRange({
+        min: -10,
+        max: 10
+    });
+
+    const businessRange = this.translator.updateBusinessRange.lastCall.args[0];
+    assert.equal(businessRange.min, -100);
+    assert.equal(businessRange.max, 100);
+    assert.equal(businessRange.minVisible, -10);
+    assert.equal(businessRange.maxVisible, 10);
+});
+
+QUnit.test("Set inverted whole range", function(assert) {
+    this.updateOptions({ wholeRange: [100, -100] });
+    this.axis.validate();
+
+    this.axis.setBusinessRange({
+        min: -200,
+        max: 200
     });
 
     const businessRange = this.translator.updateBusinessRange.lastCall.args[0];

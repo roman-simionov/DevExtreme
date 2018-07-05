@@ -1033,23 +1033,23 @@ Axis.prototype = {
 
     applyViewportAndBounds: function(range) {
         const options = this._options;
-        const bounds = options.bounds || [];
+        const wholeRange = options.wholeRange || [];
         const viewportMin = this._viewport[0];
         const viewportMax = this._viewport[1];
 
         const result = new rangeModule.Range(range);
 
-        result.min = isDefined(bounds[0]) ? bounds[0] : result.min;
-        result.max = isDefined(bounds[1]) ? bounds[1] : result.max;
+        result.min = isDefined(wholeRange[0]) ? wholeRange[0] : result.min;
+        result.max = isDefined(wholeRange[1]) ? wholeRange[1] : result.max;
 
         result.minVisible = isDefined(viewportMin) ? viewportMin : result.minVisible;
         result.maxVisible = isDefined(viewportMax) ? viewportMax : result.maxVisible;
 
-        if(isDefined(bounds[0]) && result.minVisible < result.min) {
+        if(isDefined(wholeRange[0]) && result.minVisible < result.min) {
             result.minVisible = result.min;
         }
 
-        if(isDefined(bounds[1]) && result.maxVisible > result.max) {
+        if(isDefined(wholeRange[1]) && result.maxVisible > result.max) {
             result.maxVisible = result.max;
         }
 
@@ -1369,8 +1369,7 @@ Axis.prototype = {
     },
 
     _getViewportRange: function() {
-        var range = new rangeModule.Range(this._seriesData),
-            zoom = this.getViewport();
+        var range = new rangeModule.Range(this._seriesData);
 
         range = this._applyMargins(range);
 
@@ -1613,16 +1612,16 @@ Axis.prototype = {
 
         that._viewport = [options.min, options.max];
 
-        const bounds = options.bounds || [];
-        if(bounds[0] !== undefined) {
-            bounds[0] = that._validateUnit(bounds[0], "E2106");  // TODO check E2106
+        const wholeRange = options.wholeRange || [];
+        if(wholeRange[0] !== undefined) {
+            wholeRange[0] = that._validateUnit(wholeRange[0], "E2106");  // TODO check E2106
         }
 
-        if(bounds[1] !== undefined) {
-            bounds[1] = that._validateUnit(bounds[1], "E2106");  // TODO check E2106
+        if(wholeRange[1] !== undefined) {
+            wholeRange[1] = that._validateUnit(wholeRange[1], "E2106");  // TODO check E2106
         }
 
-        options.bounds = bounds;
+        options.wholeRange = wholeRange;
     },
 
     zoom(min, max) {

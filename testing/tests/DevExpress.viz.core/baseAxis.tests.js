@@ -564,21 +564,21 @@ QUnit.test("Validate, argumentType - numeric, max and min is wrong specified", f
     assert.deepEqual(this.axis.getOptions().max, undefined);
 });
 
-QUnit.test("Validate Bounds, option is not set", function(assert) {
+QUnit.test("Validate wholeRange, option is not set", function(assert) {
     this.updateOptions({ argumentType: "datetime", min: 10, max: 20 });
 
     this.axis.validate();
 
-    assert.deepEqual(this.axis.getOptions().bounds, []);
+    assert.deepEqual(this.axis.getOptions().wholeRange, []);
 });
 
 
-QUnit.test("Validate Bounds, option is set", function(assert) {
-    this.updateOptions({ argumentType: "datetime", bounds: [10, 20] });
+QUnit.test("Validate wholeRange, option is set", function(assert) {
+    this.updateOptions({ argumentType: "datetime", wholeRange: [10, 20] });
 
     this.axis.validate();
 
-    assert.deepEqual(this.axis.getOptions().bounds, [new Date(10), new Date(20)]);
+    assert.deepEqual(this.axis.getOptions().wholeRange, [new Date(10), new Date(20)]);
 });
 
 QUnit.module("Zoom", {
@@ -2445,8 +2445,8 @@ QUnit.test("Set range with minVisible and maxVisible", function(assert) {
     assert.equal(businessRange.maxVisible, 5);
 });
 
-QUnit.test("Set bounds and viewport", function(assert) {
-    this.updateOptions({ bounds: [-100, 100], min: -40, max: 60 });
+QUnit.test("Set wholeRange and viewport", function(assert) {
+    this.updateOptions({ wholeRange: [-100, 100], min: -40, max: 60 });
     this.axis.validate();
 
     this.axis.setBusinessRange({
@@ -2477,8 +2477,8 @@ QUnit.test("viewport can go out from series data range", function(assert) {
     assert.equal(businessRange.maxVisible, 150);
 });
 
-QUnit.test("viewport can't go out from bounds", function(assert) {
-    this.updateOptions({ bounds: [-100, 100], min: -200, max: 150 });
+QUnit.test("viewport can't go out from whole range", function(assert) {
+    this.updateOptions({ wholeRange: [-100, 100], min: -200, max: 150 });
     this.axis.validate();
 
     this.axis.setBusinessRange({

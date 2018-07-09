@@ -417,10 +417,6 @@ var AdvancedChart = BaseChart.inherit({
                 argRange.addRange(seriesRange.arg);
             });
 
-            if(!groupRange.isDefined()) {
-                groupRange.setStubData(valueAxis.getOptions().valueType);
-            }
-
             if(valueAxis.getOptions().showZero) {
                 groupRange.correctValueZeroLevel();
             }

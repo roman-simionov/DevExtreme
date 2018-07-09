@@ -577,16 +577,6 @@ QUnit.test("Validate, wholeRange is wrong", function(assert) {
 
     this.axis.validate();
 
-    assert.ok(this.incidentOccurred.calledTwice);
-
-    var firstIdError = this.incidentOccurred.firstCall.args[0],
-        secondIdError = this.incidentOccurred.secondCall.args[0];
-
-    assert.equal(firstIdError, "E2106");
-    assert.equal(dxErrors[firstIdError], "Invalid visible range");
-    assert.equal(secondIdError, "E2106");
-    assert.equal(dxErrors[secondIdError], "Invalid visible range");
-
     assert.deepEqual(this.axis.getOptions().wholeRange, [undefined, undefined]);
 });
 
@@ -2409,6 +2399,20 @@ QUnit.test("Set stub data if range is empty", function(assert) {
     assert.equal(businessRange.min, 0);
     assert.equal(businessRange.max, 10);
     assert.equal(businessRange.stubData, true);
+});
+
+QUnit.test("Do not set stub data if min and max are set", function(assert) {
+    this.updateOptions({ min: 0, max: 10 });
+    this.axis.validate();
+
+    this.axis.setBusinessRange({});
+
+    const businessRange = this.translator.updateBusinessRange.lastCall.args[0];
+    assert.equal(businessRange.min, 0);
+    assert.equal(businessRange.max, 10);
+    assert.equal(businessRange.minVisible, 0);
+    assert.equal(businessRange.maxVisible, 10);
+    assert.ok(!businessRange.stubData);
 });
 
 QUnit.test("Set datetime stub data if range is empty", function(assert) {

@@ -1811,12 +1811,6 @@ QUnit.test("Axes. Axis has no panes. no series has axis (axis2)", function(asser
         ]
     });
     // assert
-    assert.ok(chart.businessRanges);
-    assert.equal(chart.businessRanges.length, 3);
-
-    var range3 = chart.businessRanges[2].val;
-    assert.equal(range3.stubData, true, "axis2 must has stubDataY");
-
     var verticalAxis = chart._valueAxes;
     assert.ok(verticalAxis, "chart must has vertical axis");
     assert.equal(verticalAxis.length, 3, "chart must has three axis");

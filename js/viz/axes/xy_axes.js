@@ -764,7 +764,7 @@ module.exports = {
         estimateMargins: function(canvas) {
             this.updateCanvas(canvas);
             var that = this,
-                range = that._getViewportRange(),
+                range = that.applyViewportAndBounds(that._getViewportRange()),
                 ticksData = this._createTicksAndLabelFormat(range),
                 ticks = ticksData.ticks,
                 tickInterval = ticksData.tickInterval,
@@ -943,10 +943,6 @@ module.exports = {
         _boundaryTicksVisibility: {
             min: true,
             max: true
-        },
-
-        _getMinMax() {
-            return { min: this._options.min, max: this._options.max };
         },
 
         _setMinMax(min, max) {

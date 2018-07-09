@@ -1086,6 +1086,11 @@ Axis.prototype = {
             invert: options.inverted
         });
 
+        that._seriesData.addRange({
+            min: this._viewport[0],
+            max: this._viewport[1]
+        });
+
         that._seriesData.minVisible = that._seriesData.minVisible === undefined ? that._seriesData.min : that._seriesData.minVisible;
         that._seriesData.maxVisible = that._seriesData.maxVisible === undefined ? that._seriesData.max : that._seriesData.maxVisible;
 
@@ -1603,14 +1608,8 @@ Axis.prototype = {
         this._axisStripGroup.attr({ "clip-path": elementsClipID });
     },
 
-    validate: function() {
-        var that = this,
-            options = that._options,
-            dataType = that.isArgumentAxis ? options.argumentType : options.valueType,
-            parser = dataType ? parseUtils.getParser(dataType) : function(unit) { return unit; };
-
-        that.parser = parser;
-        options.dataType = dataType;
+    _validateOptions(options) {
+        const that = this;
 
         if(options.min !== undefined) {
             options.min = that._validateUnit(options.min, "E2106");
@@ -1623,14 +1622,26 @@ Axis.prototype = {
 
         const wholeRange = options.wholeRange || [];
         if(wholeRange[0] !== undefined) {
-            wholeRange[0] = that._validateUnit(wholeRange[0], "E2106");  // TODO check E2106
+            wholeRange[0] = that._validateUnit(wholeRange[0]);
         }
 
         if(wholeRange[1] !== undefined) {
-            wholeRange[1] = that._validateUnit(wholeRange[1], "E2106");  // TODO check E2106
+            wholeRange[1] = that._validateUnit(wholeRange[1]);
         }
 
         options.wholeRange = wholeRange;
+    },
+
+    validate: function() {
+        var that = this,
+            options = that._options,
+            dataType = that.isArgumentAxis ? options.argumentType : options.valueType,
+            parser = dataType ? parseUtils.getParser(dataType) : function(unit) { return unit; };
+
+        that.parser = parser;
+        options.dataType = dataType;
+
+        that._validateOptions(options);
     },
 
     zoom(min, max) {

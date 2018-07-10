@@ -397,7 +397,6 @@ var AdvancedChart = BaseChart.inherit({
 
     _populateBusinessRange(useZoom) {
         const that = this;
-        const businessRanges = [];
         const rotated = that._isRotated();
         const argRange = new rangeModule.Range({ rotated: !!rotated });
         const groupsData = that._groupsData;
@@ -423,15 +422,11 @@ var AdvancedChart = BaseChart.inherit({
 
             valueAxis.setGroupSeries(groupSeries);
             valueAxis.setBusinessRange(groupRange);
-
-            businessRanges.push({ val: groupRange, arg: argRange });
         });
 
         that._argumentAxes.forEach(a => a.setBusinessRange(argRange, groupsData.categories));
 
         that._populateMarginOptions();
-
-        that.businessRanges = businessRanges;
     },
 
     _getArgumentAxis: function() {

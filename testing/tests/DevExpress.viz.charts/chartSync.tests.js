@@ -1293,9 +1293,9 @@ var environment = {
         assert.ok(chart.series[0].dataReinitialized, "Series data was reinitialized");
         assert.deepEqual(chart.series[0].reinitializedData, updatedData, "Data is correct");
 
-        assert.equal(chart.businessRanges.length, 1, "There is one business range");
-        assert.equal(chart.businessRanges[0].val.min, 1, "Correct val min");
-        assert.equal(chart.businessRanges[0].val.max, 5, "Correct val max");
+        var businessRange = chart._valueAxes[0].setBusinessRange.lastCall.args[0];
+        assert.equal(businessRange.min, 1, "Correct val min");
+        assert.equal(businessRange.max, 5, "Correct val max");
 
         assert.deepEqual(chart.layoutManager.layoutElements.lastCall.args[0], [getHeaderBlockStub(), getTitleStub(), getLegendStub()], "legend and title layouted");
         assert.deepEqual(chart.layoutManager.layoutElements.lastCall.args[1], chart.DEBUG_canvas, "legend and title layouted");
@@ -1360,9 +1360,9 @@ var environment = {
         assert.ok(chart.series[0].dataReinitialized, "Series data was reinitialized");
         assert.deepEqual(chart.series[0].reinitializedData, updatedData, "Data is correct");
 
-        assert.equal(chart.businessRanges.length, 1, "There is one business range");
-        assert.equal(chart.businessRanges[0].val.min, 1, "Correct val min");
-        assert.equal(chart.businessRanges[0].val.max, 5, "Correct val max");
+        var businessRange = chart._valueAxes[0].setBusinessRange.lastCall.args[0];
+        assert.equal(businessRange.min, 1, "Correct val min");
+        assert.equal(businessRange.max, 5, "Correct val max");
 
         assert.deepEqual(chart.layoutManager.layoutElements.lastCall.args[0], [getHeaderBlockStub(), getTitleStub(), getLegendStub()], "legend and title layouted");
         assert.deepEqual(chart.layoutManager.layoutElements.lastCall.args[1], chart.DEBUG_canvas, "legend and title layouted");
@@ -1410,8 +1410,6 @@ var environment = {
         // assert
         assert.ok(chart.series);
         assert.equal(chart.series.length, 1);
-
-        assert.equal(chart.businessRanges.length, 1);
 
         assert.ok(!chart._renderer.stub("resize").called, "Canvas should not be recreated");
         assert.deepEqual(chart.layoutManager.layoutElements.lastCall.args[0], [], "legend and title layouted");
@@ -1602,7 +1600,6 @@ var environment = {
             chart[propName] && (chart[propName].dispose = function() { chart[propName + "Disposed"] = true; });
         };
 
-        countDisposedObjects("businessRanges", ["arg", "val"]);
         countDisposedObjects("series");
         countDisposedObjects("panesBackground");
         countDisposedObjectsInArrays("_panesClipRects");
@@ -1647,7 +1644,6 @@ var environment = {
 
         assert.ok(!("_resizeHandlerCallback" in chart), "resize handler callback");
 
-        assert.strictEqual(chart.businessRanges, null, "business ranges are null");
         assert.strictEqual(chart.seriesDisposed, 3, "series");
         assert.strictEqual(chart.series, null, "series are null");
 

@@ -160,7 +160,7 @@ QUnit.test("Two ranges for two panes - data from series, indents from common axi
         max: 10
     });
 
-    var range2 = chart.businessRanges[1].val;
+    var range2 = chart._valueAxes[1].setBusinessRange.lastCall.args[0];
     assertRange(assert, range2, {
         pane: "otherPane",
         min: 101,
@@ -246,13 +246,13 @@ QUnit.test("Two ranges for two panes. One axis with showZero = true, another one
         max: 100
     });
 
-    assertRange(assert, chart.businessRanges[1].val, {
+    assertRange(assert, chart._valueAxes[1].setBusinessRange.lastCall.args[0], {
         pane: "otherPane",
         min: -100,
         max: 0
     });
 
-    assertRange(assert, chart.businessRanges[2].val, {
+    assertRange(assert, chart._valueAxes[2].setBusinessRange.lastCall.args[0], {
         pane: "otherPane",
         min: 20,
         max: 200

@@ -695,7 +695,7 @@ module.exports = {
                 iteratorUtils.each(columns, function(_, column) {
                     if(column.isBand) {
                         column.colspan = column.colspan || calculateColspan(that, column.index);
-                        colspan += column.colspan;
+                        colspan += column.colspan || 1;
                     } else {
                         colspan += 1;
                     }
@@ -1337,7 +1337,7 @@ module.exports = {
                     return items;
                 },
                 _endUpdateCore: function() {
-                    fireColumnsChanged(this);
+                    !this._skipProcessingColumnsChange && fireColumnsChanged(this);
                 },
                 init: function() {
                     var that = this,

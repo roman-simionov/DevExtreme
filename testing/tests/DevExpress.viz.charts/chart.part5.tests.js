@@ -239,7 +239,8 @@ QUnit.test("Zoom all argument axis", function(assert) {
             name: "p2"
         }]
     });
-    chart._argumentAxes[0].getViewport.returns({
+
+    chart.getArgumentAxis().getViewport.returns({
         min: 10,
         max: 50
     });

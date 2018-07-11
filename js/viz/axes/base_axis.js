@@ -106,15 +106,6 @@ function createBoundaryTick(axis, renderer, isFirst) {
     );
 }
 
-function adjustRange(range) {
-    range = range || [];
-    if(range[0] > range[1]) {
-        return [range[1], range[0]];
-    }
-
-    return range;
-}
-
 function callAction(ticks, action, actionArgument) {
     ticks.forEach(function(tick) { tick[action](actionArgument); });
 }
@@ -1042,9 +1033,10 @@ Axis.prototype = {
 
     applyViewportAndBounds: function(range) {
         const options = this._options;
-        const wholeRange = adjustRange(options.wholeRange);
-        const viewportMin = this._viewport[0];
-        const viewportMax = this._viewport[1];
+        const wholeRange = this.adjustRange(options.wholeRange);
+        const visualRange = this.adjustRange(this._viewport);
+        const viewportMin = visualRange[0];
+        const viewportMax = visualRange[1];
 
         const result = new rangeModule.Range(range);
 
@@ -1069,6 +1061,24 @@ Axis.prototype = {
         return result;
     },
 
+    adjustRange(range) {
+        range = range || [];
+        if(this._options.type === constants.logarithmic) {
+            if(range[0] < 0) {
+                range[0] = null;
+            }
+            if(range[1] < 0) {
+                range[1] = null;
+            }
+        }
+
+        if(isDefined(range[0]) && isDefined(range[1]) && range[0] > range[1]) {
+            return [range[1], range[0]];
+        }
+
+        return range;
+    },
+
     setBusinessRange: function(range, categoriesOrder) {
         var that = this,
             options = that._options;
@@ -1085,10 +1095,11 @@ Axis.prototype = {
             base: options.logarithmBase,
             invert: options.inverted
         });
+        const visualRange = this.adjustRange(this._viewport);
 
         that._seriesData.addRange({
-            min: this._viewport[0],
-            max: this._viewport[1]
+            min: visualRange[0],
+            max: visualRange[1]
         });
 
         that._seriesData.minVisible = that._seriesData.minVisible === undefined ? that._seriesData.min : that._seriesData.minVisible;

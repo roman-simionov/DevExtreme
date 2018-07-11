@@ -2595,6 +2595,38 @@ QUnit.test("Set logarithm base for logarithmic axis", function(assert) {
     assert.equal(businessRange.axisType, "logarithmic");
 });
 
+QUnit.test("Visual range and whole range can't have negative values if logarithmic axis", function(assert) {
+    this.updateOptions({ min: -10, max: -100, wholeRange: [-10, -100], type: "logarithmic" });
+    this.axis.validate();
+    this.axis.setBusinessRange({
+        min: 10,
+        max: 1000
+    });
+
+    const businessRange = this.translator.updateBusinessRange.lastCall.args[0];
+    assert.equal(businessRange.min, 10);
+    assert.equal(businessRange.max, 1000);
+    assert.equal(businessRange.minVisible, 10);
+    assert.equal(businessRange.maxVisible, 1000);
+    assert.equal(businessRange.axisType, "logarithmic");
+});
+
+QUnit.test("One values of whole range can have null value", function(assert) {
+    this.updateOptions({ wholeRange: [null, -10] });
+    this.axis.validate();
+
+    this.axis.setBusinessRange({
+        min: -100,
+        max: 1000
+    });
+
+    const businessRange = this.translator.updateBusinessRange.lastCall.args[0];
+    assert.equal(businessRange.min, -100);
+    assert.equal(businessRange.max, -10);
+    assert.equal(businessRange.minVisible, -100);
+    assert.equal(businessRange.maxVisible, -10);
+});
+
 QUnit.test("Set inverted", function(assert) {
     this.updateOptions({ inverted: true });
     this.axis.validate();
@@ -2602,6 +2634,19 @@ QUnit.test("Set inverted", function(assert) {
 
     const businessRange = this.translator.updateBusinessRange.lastCall.args[0];
     assert.strictEqual(businessRange.invert, true);
+});
+
+QUnit.test("Set min > max", function(assert) {
+    this.updateOptions({ min: 10, max: 0 });
+    this.axis.validate();
+    this.axis.setBusinessRange({});
+
+    const businessRange = this.translator.updateBusinessRange.lastCall.args[0];
+
+    assert.equal(businessRange.min, 0);
+    assert.equal(businessRange.max, 10);
+    assert.equal(businessRange.minVisible, 0);
+    assert.equal(businessRange.maxVisible, 10);
 });
 
 QUnit.module("Set business range. Value axis", {

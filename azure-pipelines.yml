@@ -10,24 +10,9 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
-
-- task: DotNetCoreInstaller@0
-  inputs:
-    version: '2.1.300'
-  displayName: 'Install .NET Core'
-
 - task: DockerInstaller@0
   inputs:
     dockerVersion: '17.09.0-ce'
-    
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
   
 - task: CmdLine@2
   inputs:

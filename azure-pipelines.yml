@@ -20,7 +20,18 @@ steps:
     version: '2.1.300'
   displayName: 'Install .NET Core'
 
+- task: DockerInstaller@0
+  inputs:
+    dockerVersion: '17.09.0-ce'
+    
 - script: |
     npm install
     npm run build
   displayName: 'npm install and build'
+  
+- task: CmdLine@2
+  inputs:
+    script: 'docker pull devexpress/devextreme-build:19_1
+      
+      docker run --rm -ti -e TARGET=test -v $(Build.SourcesDirectory) devexpress/devextreme-build:19_1 ./docker-ci.sh'
+  displayName: 'Run test'

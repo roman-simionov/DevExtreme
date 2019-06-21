@@ -33,5 +33,5 @@ steps:
   inputs:
     script: 'docker pull devexpress/devextreme-build:19_1
       
-      docker run --rm -e TARGET=test -v $(Build.SourcesDirectory) devexpress/devextreme-build:19_1 ./docker-ci.sh'
+      docker run --rm -e TARGET=test -v $(Build.SourcesDirectory):/devextreme devexpress/devextreme-build:19_1 ./docker-ci.sh'
   displayName: 'Run test'
